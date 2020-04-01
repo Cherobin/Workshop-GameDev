@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
@@ -14,6 +15,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -25,8 +27,9 @@ public class GamePanel extends JPanel implements Runnable {
 
 	public static GamePanel instance = null;
 
-	public static final int PWIDTH = 640; // size of panel
+	public static final int PWIDTH = 800; // size of panel
 	public static final int PHEIGHT = 600;
+	
 	private Thread animator; // for the animation
 	private boolean running = false; // stops the animation
 
@@ -38,10 +41,23 @@ public class GamePanel extends JPanel implements Runnable {
 
 	private Canvas gui = null;
 	private BufferStrategy strategy = null;
+	
+	public MyCanvas canvasDraw = null;
+	
+	public Random rnd;
 
+	//TODO tirar isso daqui
+	public BufferedImage heroiImage;
+	public BufferedImage background;
+	
 	public GamePanel() {
 		instance = this;
 
+		heroiImage = loadImage("logo_ckl_size.png");
+		background = loadImage("nebula.jpg");
+		
+		rnd = new Random();
+		
 		setBackground(Color.white); // white background
 		setPreferredSize(new Dimension(PWIDTH, PHEIGHT));
 
@@ -57,11 +73,16 @@ public class GamePanel extends JPanel implements Runnable {
 		gui.addKeyListener(new KeyAdapter() {
 			// listen for esc, q, end, ctrl-c
 			public void keyPressed(KeyEvent e) {
-	 
+				if(canvasDraw != null) {
+					canvasDraw.keyPressed(e);
+				}
+				
 			}
 
 			public void keyReleased(KeyEvent e) {
-	 
+				if(canvasDraw != null) {
+					canvasDraw.keyReleased(e);
+				}
 			}
 		});
 		
@@ -70,8 +91,9 @@ public class GamePanel extends JPanel implements Runnable {
 			
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-		 
-				
+				if(canvasDraw != null) {
+					canvasDraw.mouseWheelMoved(e);
+				}
 			}
 		});
 		
@@ -80,38 +102,53 @@ public class GamePanel extends JPanel implements Runnable {
 			
 			@Override
 			public void mouseMoved(MouseEvent e) { 
-			 
+				if(canvasDraw != null) {
+					canvasDraw.mouseMoved(e);
+				}
 			}
 			
 			@Override
 			public void mouseDragged(MouseEvent e) { 
-			 
+				if(canvasDraw != null) {
+					canvasDraw.mouseDragged(e);
+				}
 			}
 		});
 		 
 		// Add MouseListener
 		gui.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
-			 
+				if(canvasDraw != null) {
+					canvasDraw.mousePressed(e);
+				}
 			}
 			
 			public void mouseReleased(MouseEvent e) {
-				 
+				if(canvasDraw != null) {
+					canvasDraw.mouseReleased(e);
+				}
 			}
 			
 			public void mouseExited(MouseEvent e) {
-			 
+				if(canvasDraw != null) {
+					canvasDraw.mouseExited(e);
+				}
 			}
 			
 			public void mouseEntered(MouseEvent e) {
-				 
+				if(canvasDraw != null) {
+					canvasDraw.mouseEntered(e);
+				}
 			}
 			
 			public void mouseClicked(MouseEvent e) {
-			 
+				if(canvasDraw != null) {
+					canvasDraw.mouseClicked(e);
+				}
 			}
 		});
 
+		canvasDraw = new CanvasMain();
 
 	} // end of GamePanel()
 
@@ -182,9 +219,13 @@ public class GamePanel extends JPanel implements Runnable {
 		System.exit(0); // so enclosing JFrame/JApplet exits
 	} // end of run()
 
+
 	private void gameUpdate(long diffTime) {
 		// update game elements
-	 
+ 
+		if(canvasDraw != null) {
+			canvasDraw.gameUpdate(diffTime);
+		}
 	}
 
 	private void gameRender()
@@ -193,14 +234,18 @@ public class GamePanel extends JPanel implements Runnable {
 		// clear the background
 		dbg.setColor(Color.black);
 		dbg.fillRect(0, 0, PWIDTH, PHEIGHT);
-		
+ 
 		// draw game elements
+		
+		if(canvasDraw != null) {
+			canvasDraw.gameRender(dbg);
+		}
+		
+		dbg.setFont(new Font("Serif", Font.BOLD, 12));
 		
 		// draw FPS
 		dbg.setColor(Color.WHITE);
 		dbg.drawString("FPS: " + FPS, 20, 20);
-		
-		
 		
 
 	} // end of gameRender()
